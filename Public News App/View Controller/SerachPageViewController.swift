@@ -48,9 +48,23 @@ class SerachPageViewController: UIViewController, UITableViewDataSource, UITable
     }
     
     // MARK: URL to Image Coverter Func
+//    func urlToImage(url: String) -> UIImage? {
+//        guard let data = try? Data(contentsOf: URL(string: url)! as URL) else { return nil }
+//        return UIImage(data: data, scale: -1)
+//    }
+    
     func urlToImage(url: String) -> UIImage? {
-        guard let data = try? Data(contentsOf: URL(string: url)! as URL) else { return nil }
-        return UIImage(data: data, scale: -1)
+        guard let urlObject = URL(string: url) else {
+            // Handle the case where URL creation fails
+            return nil
+        }
+        
+        guard let data = try? Data(contentsOf: urlObject) else {
+            // Handle the case where data retrieval fails
+            return nil
+        }
+        
+        return UIImage(data: data)
     }
     
     // MARK: - Table View

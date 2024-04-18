@@ -33,7 +33,7 @@ class APICalling {
     
     // MARK: SEC Api Func.
     func searchApiNews(topic: String, _ load: @escaping(_ news: SearchApiModel)-> Void) {
-        let link = "https://newsapi.org/v2/everything?q=\(topic)&from=2024-03-12&sortBy=publishedAt&apiKey=517dee2e1bd54dac997c0fee78bee411"
+        let link = "https://newsapi.org/v2/everything?q=\(topic)&from=2024-03-16&sortBy=publishedAt&apiKey=517dee2e1bd54dac997c0fee78bee411"
                     
         var urlRequest = URLRequest(url: URL(string: link)!)
         urlRequest.httpMethod = "GET"

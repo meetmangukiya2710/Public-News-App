@@ -7,11 +7,10 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
-    
+class ViewController: UIViewController {
+   
     @IBOutlet weak var countryApiValueTableView: UITableView!
     @IBOutlet weak var collectionApiValue: UICollectionView!
-    
     @IBOutlet weak var indiaButOutlet: UIButton!
     @IBOutlet weak var usaButOutlet: UIButton!
     @IBOutlet weak var chinaButOutlet: UIButton!
@@ -29,6 +28,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     let activityView = UIActivityIndicatorView(style: .gray)
     var cgColorWhite = UIColor.white.cgColor
     var cgColorBlack = UIColor.black.cgColor
+    var currentIndex = 0
+    var timer: Timer?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -36,6 +37,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         showActivityIndicatory()
         countryButtonDesign(button: 1)
         categoryButtonDesign(button: 5)
+        startTimer()
         
         countryView.countryApiNews(country: "in", category: "business") { value in
             DispatchQueue.main.async { [self] in
@@ -61,81 +63,34 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         return UIImage(data: data, scale: -1)
     }
     
-    // MARK: - Table View
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return countryValueArray?.articles?.count ?? 0
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = countryApiValueTableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CountryTableViewCell
-        
-        cell.imageOutlet.image = urlToImage(url: (countryValueArray?.articles?[indexPath.row].urlToImage) ?? "nil") ?? UIImage(systemName: "photo.artframe")
-        cell.NewsName.text = countryValueArray?.articles?[indexPath.row].title
-        cell.lable.text = countryValueArray?.articles?[indexPath.row].author
-        
-        cell.imageOutlet.layer.cornerRadius = 10
-        
-        return cell
-    }
-    
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 166
-    }
-    
-    
-    // MARK: - Collection View
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return collectioArray?.articles?.count ?? 0
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionApiValue.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! NewsCollectionViewCell
-        
-        cell.newsImageOutlet.image = urlToImage(url: collectioArray?.articles?[indexPath.row].urlToImage ?? "nil") ?? UIImage(systemName: "photo.artframe")
-        cell.titleLableOutlet.text = collectioArray?.articles?[indexPath.row].title
-        
-        cell.layer.cornerRadius = 10
-        
-        return cell
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: 291, height: 204)
-    }
-    
-    func apiCaling(country: String, category: String) {
-        countryView.countryApiNews(country: country, category: category) { value in
-            DispatchQueue.main.async { [self] in
-                countryValueArray = value
-                countryApiValueTableView.reloadData()
-            }
-        }
-    }
-    
     //MARK: - Country Button
     @IBAction func indiaButAction(_ sender: Any) {
         country = "in"
         
         apiCaling(country: country, category: category)
         countryButtonDesign(button: 1)
+        showActivityIndicatory()
     }
     @IBAction func usaButAction(_ sender: Any) {
         country = "us"
         
         apiCaling(country: country, category: category)
         countryButtonDesign(button: 2)
+        showActivityIndicatory()
     }
     @IBAction func chinaButAction(_ sender: Any) {
         country = "ch"
         
         apiCaling(country: country, category: category)
         countryButtonDesign(button: 3)
+        showActivityIndicatory()
     }
     @IBAction func australiaButAction(_ sender: Any) {
         country = "au"
         
         apiCaling(country: country, category: category)
         countryButtonDesign(button: 4)
+        showActivityIndicatory()
     }
     
     // MARK: - Category Button
@@ -144,27 +99,32 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         
         apiCaling(country: country, category: category)
         categoryButtonDesign(button: 5)
+        showActivityIndicatory()
     }
     @IBAction func sportButAction(_ sender: Any) {
         category = "sport"
         
         apiCaling(country: country, category: category)
         categoryButtonDesign(button: 6)
+        showActivityIndicatory()
     }
+    
     @IBAction func healthButAction(_ sender: Any) {
         category = "health"
         
         apiCaling(country: country, category: category)
         categoryButtonDesign(button: 7)
+        showActivityIndicatory()
     }
     @IBAction func gamingButAction(_ sender: Any) {
         category = "gaming"
         
         apiCaling(country: country, category: category)
         categoryButtonDesign(button: 8)
+        showActivityIndicatory()
     }
     
-    // Did Select Function
+    //MARK: Did Select Function
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let select = storyboard?.instantiateViewController(withIdentifier: "DidSelectNewsViewController") as! DidSelectNewsViewController
         
@@ -178,7 +138,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         navigationController?.pushViewController(select, animated: true)
     }
     
-    // country Button Design
+    //MARK: country Button Design
     func countryButtonDesign(button: Int) {
         if indiaButOutlet.tag == button {
             countryButton(buttonCoutry: 0)
@@ -194,7 +154,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         }
     }
     
-    // category Button Design
+    //MARK: category Button Design
     func categoryButtonDesign(button: Int) {
         if businessButOutlet.tag == button {
             categoryButton(buttonCategory: 0)
@@ -236,7 +196,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         }
     }
     
-    
     func showActivityIndicatory() {
         activityView.center = self.view.center
         self.view.addSubview(activityView)
@@ -255,4 +214,76 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         gamingButOutlet.layer.cornerRadius = 5
     }
     
+    //MARK: Image Slider Code
+    
+    func startTimer() {
+        timer = Timer.scheduledTimer(timeInterval: 3.0, target: self, selector: #selector(timerAction), userInfo: nil, repeats: true)
+    }
+    
+    @objc func timerAction() {
+        let desiredScrollPosition = (currentIndex < (countryValueArray?.articles!.count)! - 1) ? currentIndex + 1 : 0
+        collectionApiValue.scrollToItem(at: IndexPath(item: desiredScrollPosition, section: 0), at: .centeredHorizontally, animated: true)
+        currentIndex = desiredScrollPosition
+    }
+    
+}
+
+// MARK: - Table View
+extension ViewController : UITableViewDataSource , UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return countryValueArray?.articles?.count ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = countryApiValueTableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! CountryTableViewCell
+        
+        cell.imageOutlet.image = urlToImage(url: (countryValueArray?.articles?[indexPath.row].urlToImage) ?? "nil") ?? UIImage(systemName: "photo.artframe")
+        cell.NewsName.text = countryValueArray?.articles?[indexPath.row].title
+        cell.lable.text = countryValueArray?.articles?[indexPath.row].author
+        
+        cell.imageOutlet.layer.cornerRadius = 10
+        
+        return cell
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 166
+    }
+}
+
+// MARK: - Collection View
+extension ViewController : UICollectionViewDataSource, UICollectionViewDelegate, UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+       
+            return collectioArray?.articles?.count ?? 0
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+            let cell = collectionApiValue.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! NewsCollectionViewCell
+            
+            cell.newsImageOutlet.image = urlToImage(url: collectioArray?.articles?[indexPath.row].urlToImage ?? "nil") ?? UIImage(systemName: "photo.artframe")
+            cell.titleLableOutlet.text = collectioArray?.articles?[indexPath.row].title
+            
+            cell.layer.cornerRadius = 10
+            
+            return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: 291, height: 204)
+    }
+    
+    func apiCaling(country: String, category: String) {
+        countryView.countryApiNews(country: country, category: category) { value in
+            DispatchQueue.main.async { [self] in
+                countryValueArray = value
+                countryApiValueTableView.reloadData()
+                activityView.stopAnimating()
+                activityView.hidesWhenStopped = true
+            }
+        }
+    }
 }
